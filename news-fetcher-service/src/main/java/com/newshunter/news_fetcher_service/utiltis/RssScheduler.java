@@ -16,7 +16,7 @@ public class RssScheduler {
     }
 
     //@Scheduled(fixedDelay = 300000)
-    @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.MINUTES)
     public void fetchUpdates() {
         rssService.fetchAllRssItems();
     }

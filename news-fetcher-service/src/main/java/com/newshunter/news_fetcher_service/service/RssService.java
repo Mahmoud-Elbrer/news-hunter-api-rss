@@ -21,21 +21,11 @@ import tools.jackson.databind.ObjectMapper;
 @Service
 public class RssService {
 
-
     private final ExecutorService executorService;
 
     public RssService(ExecutorService executorService) {
         this.executorService = executorService;
     }
-
-    // todo : Get this data for channels db
-//    private static final List<String> RSS_URLS = List.of(
-//            "https://www.alarabiya.net/.mrss/mrss.xml",
-//            "https://aawsat.com/feed/all",
-//            "https://aawsat.com/feed/arab-world",
-//            "https://arabic.cnn.com/rss.xml"
-//    );
-
 
     public void fetchAllRssItems() {
 
@@ -47,16 +37,6 @@ public class RssService {
         }
 
         List<RssItem> allItems = new ArrayList<>();
-
-
-//        for (String url : RSS_URLS) {
-//            try {
-//                allItems.addAll(fetchRssItems(url));
-//            } catch (Exception e) {
-//                System.err.println("Error: " + e.getMessage());
-//            }
-//        }
-
 
         // Here collect the results after the threads have ended
         for (Future<List<RssItem>> future : futures) {
@@ -70,12 +50,6 @@ public class RssService {
     }
 
     private List<RssItem> fetchRssItems(String feedUrl) throws Exception {
-
-
-        System.out.println(
-                "Start fetching: " + feedUrl +
-                        " | Thread: " + Thread.currentThread().getName()
-        );
 
         URL url = new URL(feedUrl);
         URLConnection connection = url.openConnection();
@@ -95,11 +69,6 @@ public class RssService {
 
             for (SyndEntry entry : feed.getEntries()) {
 
-                System.out.println(
-                        "Processing entry: " + entry.getTitle() +
-                                " | Thread: " + Thread.currentThread().getName()
-                );
-
                 RssItem item = new RssItem();
                 item.setTitle(entry.getTitle());
                 item.setLink(entry.getLink());
@@ -114,12 +83,6 @@ public class RssService {
 
                 items.add(item);
             }
-
-
-            System.out.println(
-                    "Finished fetching: " + feedUrl +
-                            " | Thread: " + Thread.currentThread().getName()
-            );
 
             return items;
         }

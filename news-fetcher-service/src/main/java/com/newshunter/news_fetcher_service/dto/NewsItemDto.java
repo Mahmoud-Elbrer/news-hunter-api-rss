@@ -1,25 +1,17 @@
-package com.newshunter.news_fetcher_service.entity;
+package com.newshunter.news_fetcher_service.dto;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
-
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class RssItem {
-
+public class NewsItemDto {
     private String title;
-
     private String link;
-
     private String description;
-
     private Date pubDate;
-
     private String source;
-
     private String imageUrl;
 }

@@ -1,7 +1,6 @@
 package com.newshunter.news_fetcher_service.service;
 
-import com.newshunter.news_fetcher_service.config.RssSourcesUrls;
-import com.newshunter.news_fetcher_service.entity.RssItem;
+import com.newshunter.news_fetcher_service.entity.NewsItem;
 import org.springframework.stereotype.Service;
 
 import com.rometools.rome.io.XmlReader;
@@ -10,8 +9,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 
 import com.rometools.rome.feed.synd.*;
@@ -20,72 +17,63 @@ import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class RssService {
-
-    private final ExecutorService executorService;
-
-    public RssService(ExecutorService executorService) {
-        this.executorService = executorService;
-    }
-
-    public void fetchAllRssItems() {
-
-        List<Future<List<RssItem>>> futures = new ArrayList<>();
-
-        // Here Send each RSS URL as a task to the Thread Pool
-        for (String url : RssSourcesUrls.RSS_URLS) {
-            futures.add(executorService.submit(() -> fetchRssItems(url)));
-        }
-
-        List<RssItem> allItems = new ArrayList<>();
-
-        // Here collect the results after the threads have ended
-        for (Future<List<RssItem>> future : futures) {
-            try {
-                allItems.addAll(future.get());
-            } catch (Exception e) {
-                System.err.println("Error: " + e.getMessage());
-            }
-        }
-
-    }
-
-    private List<RssItem> fetchRssItems(String feedUrl) throws Exception {
-
-        URL url = new URL(feedUrl);
-        URLConnection connection = url.openConnection();
-
-        // It is very important to avoid 403 news sites
-        // connection.setRequestProperty("User-Agent", "NewsHunterBot/1.0");
-
-        try (InputStream inputStream = connection.getInputStream(); XmlReader reader = new XmlReader(inputStream)) {
-
-            SyndFeedInput input = new SyndFeedInput();
-            SyndFeed feed = input.build(reader);
-
-            List<RssItem> items = new ArrayList<>();
-
-            ObjectMapper objectMapper = new ObjectMapper();
+    private static final String USER_AGENT = "NewsBot/1.0 (+https://news.com)";
+ //   private static final String USER_AGENT = "NewsHunterBot/1.0 (+https://newshunter.news)";
 
 
-            for (SyndEntry entry : feed.getEntries()) {
+    public List<NewsItem> fetchRssItems(String feedUrl  , int minutes) {
 
-                RssItem item = new RssItem();
-                item.setTitle(entry.getTitle());
-                item.setLink(entry.getLink());
-                item.setDescription(entry.getDescription() != null ? entry.getDescription().getValue() : "");
-                item.setPubDate(entry.getPublishedDate());
-                item.setSource(feed.getTitle());
-
-                String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(item);
-
-//                System.out.println(json);
+      //  System.out.println("DONE GET : " + feedUrl + " Every : " +  minutes);
+        System.out.println("\u001B[32m" + "DONE GET : " + feedUrl + " Every : " + minutes + " minutes" + "\u001B[0m");
 
 
-                items.add(item);
+        List<NewsItem> items = new ArrayList<>();
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            URL url = new URL(feedUrl);
+            URLConnection connection = url.openConnection();
+
+            // It is very important to avoid 403 news sites
+            // connection.setRequestProperty("User-Agent", "NewsHunterBot/1.0");
+            connection.setRequestProperty("User-Agent", USER_AGENT);
+            connection.setConnectTimeout(10_000);
+            connection.setReadTimeout(10_000);
+
+            try (InputStream inputStream = connection.getInputStream();
+                 XmlReader reader = new XmlReader(inputStream)) {
+
+                SyndFeedInput input = new SyndFeedInput();
+                SyndFeed feed = input.build(reader);
+
+                for (SyndEntry entry : feed.getEntries()) {
+
+                    NewsItem item = new NewsItem();
+                    item.setTitle(entry.getTitle());
+                    item.setLink(entry.getLink());
+                    item.setDescription(entry.getDescription() != null ? entry.getDescription().getValue() : "");
+                    item.setPubDate(entry.getPublishedDate());
+                    item.setSource(feed.getTitle());
+
+//                    String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(item);
+//                    System.out.println(json);
+
+
+
+
+                    items.add(item);
+                }
             }
 
-            return items;
+        } catch (Exception e) {
+//            System.err.println("RSS fetch failed for URL: " + feedUrl);
+//            System.err.println(e.getMessage());
+//            throw new RuntimeException(e);
         }
+
+        return items;
     }
 
 }

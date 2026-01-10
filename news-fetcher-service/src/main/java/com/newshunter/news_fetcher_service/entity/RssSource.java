@@ -7,20 +7,28 @@ public class RssSource {
 
     private final String url;
 
+
+    // Dynamic scheduling
     private int fetchIntervalMinutes;
     private long lastFetchedAtMinutes;
     private int failureCount = 0;
 
+    // Rate limiting (per RSS source)
+    private final int maxRequests;     // max requests allowed
+    private final int rateLimitWindowMinutes;   // time window in minutes
 
 
     /**
-      Sets lastFetchedAtMinutes to current time to prevent immediate fetch on app start
-     this so important
+     * Sets lastFetchedAtMinutes to current time to prevent immediate fetch on app start
+     * this so important
      */
-    public RssSource(String url, int fetchIntervalMinutes) {
+    public RssSource(String url, int fetchIntervalMinutes, int maxRequests, int rateLimitWindowMinutes) {
         this.url = url;
         this.fetchIntervalMinutes = fetchIntervalMinutes;
         this.lastFetchedAtMinutes = currentMinutes();
+        // Rate limiting
+        this.maxRequests = maxRequests;
+        this.rateLimitWindowMinutes = rateLimitWindowMinutes;
     }
 
     private long currentMinutes() {
@@ -34,6 +42,7 @@ public class RssSource {
 
     // Resets failure count an
     // d updates lastFetchedAtMinutes
+
     /**
      * Marks the feed as successfully fetched
      * Resets failure count and updates lastFetchedAtMinutes

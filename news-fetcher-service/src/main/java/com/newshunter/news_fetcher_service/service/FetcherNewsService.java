@@ -1,6 +1,6 @@
 package com.newshunter.news_fetcher_service.service;
 
-import com.newshunter.news_fetcher_service.entity.NewsItem;
+import com.newshunter.news_fetcher_service.entity.News;
 import org.springframework.stereotype.Service;
 
 import com.rometools.rome.io.XmlReader;
@@ -16,18 +16,18 @@ import com.rometools.rome.io.*;
 import tools.jackson.databind.ObjectMapper;
 
 @Service
-public class RssService {
+public class FetcherNewsService {
     private static final String USER_AGENT = "NewsBot/1.0 (+https://news.com)";
- //   private static final String USER_AGENT = "NewsHunterBot/1.0 (+https://newshunter.news)";
+    //   private static final String USER_AGENT = "NewsHunterBot/1.0 (+https://newshunter.news)";
 
 
-    public List<NewsItem> fetchRssItems(String feedUrl  , int minutes) {
+    public List<News> fetchRssItems(String feedUrl, int minutes) {
 
-      //  System.out.println("DONE GET : " + feedUrl + " Every : " +  minutes);
+        //  System.out.println("DONE GET : " + feedUrl + " Every : " +  minutes);
         System.out.println("\u001B[32m" + "DONE GET : " + feedUrl + " Every : " + minutes + " minutes" + "\u001B[0m");
 
 
-        List<NewsItem> items = new ArrayList<>();
+        List<News> items = new ArrayList<>();
 
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -50,7 +50,7 @@ public class RssService {
 
                 for (SyndEntry entry : feed.getEntries()) {
 
-                    NewsItem item = new NewsItem();
+                    News item = new News();
                     item.setTitle(entry.getTitle());
                     item.setLink(entry.getLink());
                     item.setDescription(entry.getDescription() != null ? entry.getDescription().getValue() : "");
@@ -61,13 +61,12 @@ public class RssService {
 //                    System.out.println(json);
 
 
-
-
                     items.add(item);
                 }
             }
 
         } catch (Exception e) {
+            // todo : enable this for error
 //            System.err.println("RSS fetch failed for URL: " + feedUrl);
 //            System.err.println(e.getMessage());
 //            throw new RuntimeException(e);

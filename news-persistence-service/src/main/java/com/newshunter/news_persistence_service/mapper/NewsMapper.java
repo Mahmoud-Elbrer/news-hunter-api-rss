@@ -22,4 +22,5 @@ public class NewsMapper {
         return mapper.map(news, NewsDto.class);
     }
 
+
 }

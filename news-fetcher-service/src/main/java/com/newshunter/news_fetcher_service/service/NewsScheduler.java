@@ -14,16 +14,16 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class NewsScheduler {
     private final ExecutorService executorService;
-    private final FetcherNewsService fetcherNewsService;
+    private final NewsFetcherService newsFetcherService;
     private final RateLimiterService rateLimiterService;
 
     public NewsScheduler(
             ExecutorService executorService,
-            FetcherNewsService fetcherNewsService,
+            NewsFetcherService newsFetcherService,
             RateLimiterService rateLimiterService
     ) {
         this.executorService = executorService;
-        this.fetcherNewsService = fetcherNewsService;
+        this.newsFetcherService = newsFetcherService;
         this.rateLimiterService = rateLimiterService;
     }
 
@@ -56,7 +56,7 @@ public class NewsScheduler {
             // setup 3 Execute fetch asynchronously
             executorService.submit(() -> {
                 try {
-                    List<News> newsItems = fetcherNewsService.fetchRssItems(url.getUrl(), url.getFetchIntervalMinutes());
+                    List<News> newsItems = newsFetcherService.fetchRssItems(url.getUrl(), url.getFetchIntervalMinutes());
                     // todo : send to cashing
 
                     url.markFetched();

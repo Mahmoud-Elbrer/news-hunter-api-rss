@@ -11,6 +11,8 @@ import java.util.Date;
 @NoArgsConstructor
 public class News {
 
+    private String id;
+
     private String title;
 
     private String link;

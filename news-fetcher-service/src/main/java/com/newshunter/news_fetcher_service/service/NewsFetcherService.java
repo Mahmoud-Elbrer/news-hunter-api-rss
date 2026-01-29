@@ -1,6 +1,7 @@
 package com.newshunter.news_fetcher_service.service;
 
 import com.newshunter.news_fetcher_service.entity.News;
+import com.newshunter.news_fetcher_service.utiltis.ExtractImageUrl;
 import org.springframework.stereotype.Service;
 
 import com.rometools.rome.io.XmlReader;
@@ -13,12 +14,18 @@ import java.util.*;
 
 import com.rometools.rome.feed.synd.*;
 import com.rometools.rome.io.*;
-import tools.jackson.databind.ObjectMapper;
 
 @Service
-public class FetcherNewsService {
+public class NewsFetcherService {
     private static final String USER_AGENT = "NewsBot/1.0 (+https://news.com)";
     //   private static final String USER_AGENT = "NewsHunterBot/1.0 (+https://newshunter.news)";
+
+
+    private final NewsCacheService newsCacheService;
+
+    public NewsFetcherService(NewsCacheService newsCacheService) {
+        this.newsCacheService = newsCacheService;
+    }
 
 
     public List<News> fetchRssItems(String feedUrl, int minutes) {
@@ -30,7 +37,7 @@ public class FetcherNewsService {
         List<News> items = new ArrayList<>();
 
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        //ObjectMapper objectMapper = new ObjectMapper();
 
         try {
             URL url = new URL(feedUrl);
@@ -56,10 +63,18 @@ public class FetcherNewsService {
                     item.setDescription(entry.getDescription() != null ? entry.getDescription().getValue() : "");
                     item.setPubDate(entry.getPublishedDate());
                     item.setSource(feed.getTitle());
+                    item.setImageUrl(ExtractImageUrl.extractImageUrl(entry));
 
 //                    String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(item);
 //                    System.out.println(json);
 
+                    // Deduplication Check
+                    if (newsCacheService.isDuplicate(item)) {
+                        continue;
+                    }
+
+                    // New News to Cache
+                    newsCacheService.save(item);
 
                     items.add(item);
                 }
@@ -67,9 +82,7 @@ public class FetcherNewsService {
 
         } catch (Exception e) {
             // todo : enable this for error
-//            System.err.println("RSS fetch failed for URL: " + feedUrl);
-//            System.err.println(e.getMessage());
-//            throw new RuntimeException(e);
+            //throw new RuntimeException(e); // this url : feedUrl filer
         }
 
         return items;

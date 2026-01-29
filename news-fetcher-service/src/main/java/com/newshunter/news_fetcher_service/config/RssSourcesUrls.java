@@ -13,7 +13,7 @@ public final class RssSourcesUrls {
             new RssSource("https://arabic.cnn.com/rss.xml", RssPriorityConstraint.CRITICAL.getId(), 2, 5),
             new RssSource("https://www.aljazeera.net/aljazeera/rss.xml", RssPriorityConstraint.MEDIUM.getId(), 10, 60),
             new RssSource("https://www.youm7.com/rss", RssPriorityConstraint.MEDIUM.getId(), 10, 60),
-            new RssSource("https://www.alarabiya.net/saudi/rss.xml", RssPriorityConstraint.VERY_LOW.getId(), 10, 60),
+            new RssSource("https://www.alarabiya.net/feed/rss2/ar.xml", RssPriorityConstraint.VERY_LOW.getId(), 10, 60),
             new RssSource("https://assabah.ma/feed", RssPriorityConstraint.LOW.getId(), 10, 60)
     ));
 

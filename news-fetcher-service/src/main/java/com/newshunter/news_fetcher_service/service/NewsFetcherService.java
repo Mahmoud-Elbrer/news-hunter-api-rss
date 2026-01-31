@@ -65,6 +65,7 @@ public class NewsFetcherService {
                     item.setSource(feed.getTitle());
                     item.setImageUrl(ExtractImageUrl.extractImageUrl(entry));
 
+
 //                    String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(item);
 //                    System.out.println(json);
 

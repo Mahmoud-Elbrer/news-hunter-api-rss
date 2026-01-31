@@ -17,18 +17,22 @@ public class RssSource {
     private final int maxRequests;     // max requests allowed
     private final int rateLimitWindowMinutes;   // time window in minutes
 
+    // TTL per source (in hours) to delete data from cache
+    private final int ttlHOURS;
+
 
     /**
      * Sets lastFetchedAtMinutes to current time to prevent immediate fetch on app start
      * this so important
      */
-    public RssSource(String url, int fetchIntervalMinutes, int maxRequests, int rateLimitWindowMinutes) {
+    public RssSource(String url, int fetchIntervalMinutes, int maxRequests, int rateLimitWindowMinutes , int ttlHOURS) {
         this.url = url;
         this.fetchIntervalMinutes = fetchIntervalMinutes;
         this.lastFetchedAtMinutes = currentMinutes();
         // Rate limiting
         this.maxRequests = maxRequests;
         this.rateLimitWindowMinutes = rateLimitWindowMinutes;
+        this.ttlHOURS = ttlHOURS;
     }
 
     private long currentMinutes() {

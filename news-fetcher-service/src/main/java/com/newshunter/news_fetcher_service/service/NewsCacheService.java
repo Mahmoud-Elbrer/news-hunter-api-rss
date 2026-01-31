@@ -19,7 +19,7 @@ public class NewsCacheService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private static final long TTL_HOURS = 10;
+    private static final long TTL_HOURS = 6;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -49,14 +49,11 @@ public class NewsCacheService {
     public List<NewsDto> getNewsFromCache() {
         Set<String> keys = redisTemplate.keys("news:deduplication:*");
 
-        List<NewsDto> news = redisTemplate.opsForValue().multiGet(keys).stream()
+        return redisTemplate.opsForValue()
+                .multiGet(keys).stream()
                 .filter(Objects::nonNull)
                 .map(obj -> mapper.readValue(obj.toString(), News.class))
-                .filter(Objects::nonNull)
-                .map(NewsMapper::mapToDto)
-                .toList();
-
-        return news;
+                .map(NewsMapper::mapToDto).toList();
     }
 
 

@@ -56,7 +56,7 @@ public class NewsScheduler {
             // setup 3 Execute fetch asynchronously
             executorService.submit(() -> {
                 try {
-                    List<News> newsItems = newsFetcherService.fetchRssItems(url.getUrl(), url.getFetchIntervalMinutes());
+                    List<News> newsItems = newsFetcherService.fetchRssItems(url);
                     // todo : send to cashing
 
                     url.markFetched();

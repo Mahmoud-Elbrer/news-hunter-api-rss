@@ -64,3 +64,8 @@ public class NewsController {
 
 
 }
+
+
+// git add .
+// git commit -m "refactor code "
+//git push --set-upstream origin main

@@ -1,6 +1,8 @@
 package com.newshunter.news_fetcher_service.service;
 
 import com.newshunter.news_fetcher_service.entity.News;
+import com.newshunter.news_fetcher_service.entity.RssSource;
+import com.newshunter.news_fetcher_service.utiltis.Constraint;
 import com.newshunter.news_fetcher_service.utiltis.ExtractImageUrl;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +19,6 @@ import com.rometools.rome.io.*;
 
 @Service
 public class NewsFetcherService {
-    private static final String USER_AGENT = "NewsBot/1.0 (+https://news.com)";
-    //   private static final String USER_AGENT = "NewsHunterBot/1.0 (+https://newshunter.news)";
-
 
     private final NewsCacheService newsCacheService;
 
@@ -28,24 +27,24 @@ public class NewsFetcherService {
     }
 
 
-    public List<News> fetchRssItems(String feedUrl, int minutes) {
+    public List<News> fetchRssItems(RssSource rssSource) {
 
         //  System.out.println("DONE GET : " + feedUrl + " Every : " +  minutes);
-        System.out.println("\u001B[32m" + "DONE GET : " + feedUrl + " Every : " + minutes + " minutes" + "\u001B[0m");
+        System.out.println("\u001B[32m" + "DONE GET : " + rssSource.getTtlHOURS() + " Every : " +  rssSource.getFetchIntervalMinutes() + " minutes" + "\u001B[0m");
 
 
         List<News> items = new ArrayList<>();
 
 
-        //ObjectMapper objectMapper = new ObjectMapper();
+//        ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            URL url = new URL(feedUrl);
+            URL url = new URL( rssSource.getUrl());
             URLConnection connection = url.openConnection();
 
             // It is very important to avoid 403 news sites
             // connection.setRequestProperty("User-Agent", "NewsHunterBot/1.0");
-            connection.setRequestProperty("User-Agent", USER_AGENT);
+            connection.setRequestProperty("User-Agent", Constraint.USER_AGENT);
             connection.setConnectTimeout(10_000);
             connection.setReadTimeout(10_000);
 
@@ -75,7 +74,7 @@ public class NewsFetcherService {
                     }
 
                     // New News to Cache
-                    newsCacheService.save(item);
+                    newsCacheService.save(item, rssSource.getTtlHOURS() );
 
                     items.add(item);
                 }
@@ -83,7 +82,7 @@ public class NewsFetcherService {
 
         } catch (Exception e) {
             // todo : enable this for error
-            //throw new RuntimeException(e); // this url : feedUrl filer
+            throw new RuntimeException(e); // this url : feedUrl filer
         }
 
         return items;

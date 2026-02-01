@@ -3,7 +3,6 @@ package com.newshunter.news_fetcher_service.service;
 import com.newshunter.news_fetcher_service.dto.NewsDto;
 import com.newshunter.news_fetcher_service.entity.News;
 import com.newshunter.news_fetcher_service.mapper.NewsMapper;
-import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -37,14 +36,17 @@ public class NewsCacheService {
         return "news:deduplication:" + Integer.toHexString((news.getId() + news.getTitle()).hashCode());
     }
 
-    public void save(News news) {
+    public void save(News news , int ttlHours) {
+
+        System.out.println(news.getLink());
+        System.out.println(ttlHours);
+
         String key = buildKey(news);
         String value = objectMapper.writeValueAsString(news);
         // todo : make TTL depend on time Priority News Time * 1 days
-        redisTemplate.opsForValue().set(key, value, TTL_HOURS, TimeUnit.HOURS);
+        redisTemplate.opsForValue().set(key, value, ttlHours, TimeUnit.MINUTES);
     }
 
-    ObjectMapper mapper = new ObjectMapper();
 
     public List<NewsDto> getNewsFromCache() {
         Set<String> keys = redisTemplate.keys("news:deduplication:*");
@@ -52,7 +54,7 @@ public class NewsCacheService {
         return redisTemplate.opsForValue()
                 .multiGet(keys).stream()
                 .filter(Objects::nonNull)
-                .map(obj -> mapper.readValue(obj.toString(), News.class))
+                .map(obj -> objectMapper.readValue(obj.toString(), News.class))
                 .map(NewsMapper::mapToDto).toList();
     }
 

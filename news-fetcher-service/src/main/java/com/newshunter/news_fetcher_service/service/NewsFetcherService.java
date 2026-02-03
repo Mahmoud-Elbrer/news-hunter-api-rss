@@ -30,7 +30,7 @@ public class NewsFetcherService {
     public List<News> fetchRssItems(RssSource rssSource) {
 
         //  System.out.println("DONE GET : " + feedUrl + " Every : " +  minutes);
-        System.out.println("\u001B[32m" + "DONE GET : " + rssSource.getTtlHOURS() + " Every : " +  rssSource.getFetchIntervalMinutes() + " minutes" + "\u001B[0m");
+        System.out.println("\u001B[32m" + "Fetching : "  + rssSource.getUrl() +" ttl:"+ rssSource.getTtlHOURS() + " Hour for every " + rssSource.getFetchIntervalMinutes() + " minutes" + "\u001B[0m");
 
 
         List<News> items = new ArrayList<>();
@@ -39,7 +39,7 @@ public class NewsFetcherService {
 //        ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            URL url = new URL( rssSource.getUrl());
+            URL url = new URL(rssSource.getUrl());
             URLConnection connection = url.openConnection();
 
             // It is very important to avoid 403 news sites
@@ -57,13 +57,13 @@ public class NewsFetcherService {
                 for (SyndEntry entry : feed.getEntries()) {
 
                     News item = new News();
+                    item.setGuid(entry.getUri() != null ? entry.getUri() : entry.getLink());
                     item.setTitle(entry.getTitle());
                     item.setLink(entry.getLink());
                     item.setDescription(entry.getDescription() != null ? entry.getDescription().getValue() : "");
                     item.setPubDate(entry.getPublishedDate());
                     item.setSource(feed.getTitle());
-                    item.setImageUrl(ExtractImageUrl.extractImageUrl(entry));
-
+                    item.setImageUrl(ExtractImageUrl.extractImageUrlFromEntry(entry));
 
 //                    String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(item);
 //                    System.out.println(json);
@@ -74,14 +74,15 @@ public class NewsFetcherService {
                     }
 
                     // New News to Cache
-                    newsCacheService.save(item, rssSource.getTtlHOURS() );
+                    newsCacheService.save(item, rssSource.getTtlHOURS());
 
                     items.add(item);
                 }
             }
 
         } catch (Exception e) {
-            // todo : enable this for error
+            // todo : log error
+            // todo : retry fetch feedUrl after some time
             throw new RuntimeException(e); // this url : feedUrl filer
         }
 

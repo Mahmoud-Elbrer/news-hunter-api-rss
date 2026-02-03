@@ -67,5 +67,5 @@ public class NewsController {
 
 
 // git add .
-// git commit -m "refactor code "
+// git commit -m "Optimize Redis caching using priority based TTL per news source"
 //git push --set-upstream origin main

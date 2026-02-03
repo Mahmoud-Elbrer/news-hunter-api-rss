@@ -1,5 +1,6 @@
 package com.newshunter.news_fetcher_service.dto;
 
+import com.rometools.rome.feed.rss.Guid;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import java.util.Date;
 @Getter
 @Setter
 public class NewsDto {
+    private String guid;
     private String title;
     private String link;
     private String description;

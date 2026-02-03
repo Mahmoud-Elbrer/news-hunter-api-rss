@@ -3,6 +3,7 @@ package com.newshunter.news_fetcher_service.service;
 import com.newshunter.news_fetcher_service.dto.NewsDto;
 import com.newshunter.news_fetcher_service.entity.News;
 import com.newshunter.news_fetcher_service.mapper.NewsMapper;
+import com.newshunter.news_fetcher_service.utiltis.KeysConstraint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -18,8 +19,6 @@ public class NewsCacheService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private static final long TTL_HOURS = 6;
-
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -33,23 +32,18 @@ public class NewsCacheService {
     }
 
     String buildKey(News news) {
-        return "news:deduplication:" + Integer.toHexString((news.getId() + news.getTitle()).hashCode());
+        return KeysConstraint.NEWS_DEDUPLICATION_KEY_PREFIX + Integer.toHexString((news.getGuid() + news.getTitle()).hashCode());
     }
 
-    public void save(News news , int ttlHours) {
-
-        System.out.println(news.getLink());
-        System.out.println(ttlHours);
-
+    public void save(News news, long ttlHours) {
         String key = buildKey(news);
         String value = objectMapper.writeValueAsString(news);
-        // todo : make TTL depend on time Priority News Time * 1 days
-        redisTemplate.opsForValue().set(key, value, ttlHours, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(key, value, ttlHours, TimeUnit.HOURS);
     }
 
 
     public List<NewsDto> getNewsFromCache() {
-        Set<String> keys = redisTemplate.keys("news:deduplication:*");
+        Set<String> keys = redisTemplate.keys(KeysConstraint.NEWS_DEDUPLICATION_KEY_PREFIX + "*");
 
         return redisTemplate.opsForValue()
                 .multiGet(keys).stream()
@@ -58,5 +52,10 @@ public class NewsCacheService {
                 .map(NewsMapper::mapToDto).toList();
     }
 
-
+    public void deleteNewsFromCache() {
+        Set<String> keys = redisTemplate.keys(KeysConstraint.NEWS_DEDUPLICATION_KEY_PREFIX + "*");
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package com.newshunter.news_fetcher_service.entity;
 
 import lombok.*;
+import org.w3c.dom.Text;
 
 import java.util.Date;
 
@@ -12,6 +13,8 @@ import java.util.Date;
 public class News {
 
     private String id;
+
+    private String guid;
 
     private String title;
 

@@ -9,7 +9,7 @@ public class ExtractImageUrl {
 
     private static final String MEDIA_NS = "http://search.yahoo.com/mrss/";
 
-    public static String extractImageUrl(SyndEntry entry) {
+    public static String extractImageUrlFromEntry(SyndEntry entry) {
 
         // Here Read <media:content> and get Image
         List<Element> foreignMarkup = entry.getForeignMarkup();

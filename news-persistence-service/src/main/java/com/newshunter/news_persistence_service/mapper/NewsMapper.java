@@ -22,5 +22,9 @@ public class NewsMapper {
         return mapper.map(news, NewsDto.class);
     }
 
+     public static com.newshunter.news_persistence_service.entity.News mapToPersistenceNews(com.newshunter.news_fetcher_service.entity.News fetcherNews) {
+        return mapper.map(fetcherNews, com.newshunter.news_persistence_service.entity.News.class);
+    }
+
 
 }

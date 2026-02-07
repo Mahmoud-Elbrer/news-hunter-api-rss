@@ -16,7 +16,9 @@ import java.util.Date;
 public class NewsDto {
 
 
-    private Long Id;
+    private Long id;
+
+    private String guid;
 
     @NotEmpty(message = "title should not be empty or null")
     private String title;

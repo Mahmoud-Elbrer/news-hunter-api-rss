@@ -2,6 +2,7 @@ package com.newshunter.news_fetcher_service.service;
 
 import com.newshunter.news_fetcher_service.entity.News;
 import com.newshunter.news_fetcher_service.entity.RssSource;
+import com.newshunter.news_fetcher_service.kafka.NewsProducer;
 import com.newshunter.news_fetcher_service.utiltis.Constraint;
 import com.newshunter.news_fetcher_service.utiltis.ExtractImageUrl;
 import org.springframework.stereotype.Service;
@@ -22,8 +23,11 @@ public class NewsFetcherService {
 
     private final NewsCacheService newsCacheService;
 
-    public NewsFetcherService(NewsCacheService newsCacheService) {
+    private final NewsProducer newsProducer;
+
+    public NewsFetcherService(NewsCacheService newsCacheService, NewsProducer newsProducer) {
         this.newsCacheService = newsCacheService;
+        this.newsProducer = newsProducer;
     }
 
 
@@ -75,6 +79,10 @@ public class NewsFetcherService {
 
                     // New News to Cache
                     newsCacheService.save(item, rssSource.getTtlHOURS());
+
+
+                    // Send to Kafka
+                    newsProducer.sendMessage(item);
 
                     items.add(item);
                 }

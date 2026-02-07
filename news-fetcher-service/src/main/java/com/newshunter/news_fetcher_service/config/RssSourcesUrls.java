@@ -11,8 +11,8 @@ public final class RssSourcesUrls {
 
     public static final List<RssSource> RSS_URLS = new ArrayList<>(List.of(
             new RssSource("https://arabic.cnn.com/rss.xml", RssPriorityConstraint.CRITICAL.getId(), 2, 5, 2),
-            new RssSource("https://www.ajplus.net/stories?format=rss", RssPriorityConstraint.MEDIUM.getId(), 10, 60, 5),
-            new RssSource("https://news.google.com/news?cf=all&hl=en&pz=1&ned=ca&output=rss", RssPriorityConstraint.MEDIUM.getId(), 10, 60, 5),
+            new RssSource("https://www.ajplus.net/stories?format=rss", RssPriorityConstraint.CRITICAL.getId(), 10, 60, 5),
+            new RssSource("https://news.google.com/news?cf=all&hl=en&pz=1&ned=ca&output=rss", RssPriorityConstraint.CRITICAL.getId(), 10, 60, 5),
             new RssSource("https://www.alarabiya.net/feed/rss2/ar.xml", RssPriorityConstraint.VERY_LOW.getId(), 10, 60, 12),
             new RssSource("https://assabah.ma/feed", RssPriorityConstraint.LOW.getId(), 10, 60, 24),
             new RssSource("https://anyrss.com/2sIaIXHUKlM", RssPriorityConstraint.LOW.getId(), 10, 60, 24)

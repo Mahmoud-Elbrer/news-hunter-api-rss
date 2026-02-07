@@ -73,7 +73,30 @@
 			<version>4.1.0-M1</version>
 			<scope>compile</scope>
 		</dependency>
-    </dependencies>
+
+
+		<!-- Kafka -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-kafka</artifactId>
+		</dependency>
+
+
+		<!-- Tests -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-kafka-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Jackson (Required for Kafka JsonSerializer) -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
+
+	</dependencies>
 
 	<build>
 		<plugins>

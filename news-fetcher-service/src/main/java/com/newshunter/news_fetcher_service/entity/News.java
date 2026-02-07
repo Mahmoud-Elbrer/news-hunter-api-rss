@@ -10,6 +10,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class News {
 
     private String id;

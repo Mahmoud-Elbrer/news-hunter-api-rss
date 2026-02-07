@@ -13,24 +13,27 @@ public class News {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
-    @Column(name = "title", nullable = false)
+    @Column(length = 500)
+    private String guid;
+
+    @Column(name = "title", nullable = false ,columnDefinition = "TEXT")
     private String title;
 
     //@Column(name = "link", nullable = false, unique = true)
-    @Column(name = "link", nullable = false )
+    @Column(name = "link", nullable = false  ,columnDefinition = "TEXT")
     private String link;
 
-    @Column(name = "description")
+    @Column(name = "description"  ,columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "pubDate")
     private Date pubDate;
 
-    @Column(name = "source")
+    @Column(name = "source" ,columnDefinition = "TEXT")
     private String source;
 
-    @Column(name = "imageUrl")
+    @Column(name = "imageUrl" ,columnDefinition = "TEXT")
     private String imageUrl;
 }

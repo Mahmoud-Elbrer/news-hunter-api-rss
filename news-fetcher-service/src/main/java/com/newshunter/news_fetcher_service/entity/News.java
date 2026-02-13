@@ -13,8 +13,6 @@ import java.util.Date;
 @ToString
 public class News {
 
-    private String id;
-
     private String guid;
 
     private String title;

@@ -49,7 +49,7 @@ public class NewsServiceImpl implements NewsService {
     public NewsDto getNewsById(long id) {
 
         News news = newsRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("News", "id", id));
-        ;
+
 
         return NewsMapper.mapToNewsDto(news);
     }

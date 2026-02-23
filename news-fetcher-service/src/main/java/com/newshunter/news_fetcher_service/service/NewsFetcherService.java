@@ -2,7 +2,7 @@ package com.newshunter.news_fetcher_service.service;
 
 import com.newshunter.news_fetcher_service.entity.News;
 import com.newshunter.news_fetcher_service.entity.RssSource;
-import com.newshunter.news_fetcher_service.kafka.NewsProducer;
+import com.newshunter.news_fetcher_service.event.NewsProducer;
 import com.newshunter.news_fetcher_service.utiltis.Constraint;
 import com.newshunter.news_fetcher_service.utiltis.ExtractImageUrl;
 import org.springframework.stereotype.Service;

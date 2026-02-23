@@ -1,4 +1,4 @@
-package com.newshunter.news_persistence_service.kafka;
+package com.newshunter.news_persistence_service.event;
 
 import com.newshunter.news_fetcher_service.entity.News;
 import com.newshunter.news_persistence_service.mapper.NewsMapper;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class NewsConsumer {
@@ -54,7 +55,7 @@ public class NewsConsumer {
     }
 
     // Flush by time (every 20 seconds)
-    @Scheduled(fixedDelay = 20000)
+    @Scheduled(fixedDelay = 20, timeUnit = TimeUnit.SECONDS)
     public void scheduledFlush() {
         if (!batchBuffer.isEmpty()) {
             flushBatch();
@@ -62,6 +63,7 @@ public class NewsConsumer {
     }
 
 
+    // Flush Batch Buffer News
     private void flushBatch() {
 
         synchronized (batchBuffer) {

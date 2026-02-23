@@ -1,4 +1,4 @@
-package com.newshunter.news_fetcher_service.kafka;
+package com.newshunter.news_fetcher_service.event;
 
 
 import com.newshunter.news_fetcher_service.entity.News;

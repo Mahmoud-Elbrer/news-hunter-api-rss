@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/url")
+@RequestMapping("/api/url/shortener")
 public class UrlController {
 
     private UrlService urlService;
@@ -25,6 +25,7 @@ public class UrlController {
 
     @GetMapping("/{code}")
     public String redirect(@Valid @PathVariable String code) {
+        System.out.println("Hello short");
         return  urlService.redirect(code) ;
     }
 

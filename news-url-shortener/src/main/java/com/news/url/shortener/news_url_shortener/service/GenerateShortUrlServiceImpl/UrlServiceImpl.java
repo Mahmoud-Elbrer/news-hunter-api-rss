@@ -53,7 +53,7 @@ public class UrlServiceImpl implements UrlService {
 
         if (longUrl != null) {
             // increment Click to cache
-            cacheService.incrementClick(code);
+           // cacheService.incrementClick(code);
             return longUrl;
         }
 

@@ -30,6 +30,7 @@
 		<java.version>17</java.version>
 		<modelmapper.version>3.2.2</modelmapper.version>
 		<lombok.version>1.18.30</lombok.version>
+		<spring-cloud.version>2025.1.0</spring-cloud.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -106,8 +107,28 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
+		<!--eureka-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+		</dependency>
+
 
 	</dependencies>
+
+
+	<!-- Spring Cloud Version Management -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>

@@ -18,7 +18,7 @@ public class KeyPoolManager {
     private final StringRedisTemplate redisTemplate;
     private final RedissonClient redissonClient;
 
-    private final ShortCodeGenerator shortCodeGenerator ;
+    private final ShortCodeGenerator shortCodeGenerator;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyPoolManager.class);
 
@@ -46,10 +46,8 @@ public class KeyPoolManager {
 
 
     // Scheduled to run periodically to check and replenish the key pool
-    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS) // Every 5 minutes
+    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES) // Every 5 minutes
     public void replenishKeyPool() {
-
-        LOGGER.info("i running key pool replenishment task...");
 
         // lock to ensure only one instance generates keys at a time
         RLock lock = redissonClient.getLock(KEY_GEN_LOCK);
@@ -60,9 +58,6 @@ public class KeyPoolManager {
 
                 // check current pool size
                 Long currentPoolSize = redisTemplate.opsForSet().size(KEY_POOL_SET);
-
-
-                LOGGER.info("Current key pool size: {}", currentPoolSize);
 
                 if (currentPoolSize == null || currentPoolSize < MIN_KEY_POOL_SIZE) {
                     // generate and add keys to the pool
@@ -86,29 +81,19 @@ public class KeyPoolManager {
 
     private void generateAndAddKeys() {
 
-
-        LOGGER.info("Generating {} new keys for the pool...11", GENERATE_BATCH_SIZE);
-
+        // use a set to avoid duplicates in the generated keys
         Set<String> newKeys = new java.util.HashSet<>();
-
-        LOGGER.info("Generating {} new keys for the pool...2", GENERATE_BATCH_SIZE);
 
         // get the next ID to generate from the counter and increment it by the batch size
         long startId = redisTemplate.opsForValue().increment(KEY_COUNTER, GENERATE_BATCH_SIZE) - GENERATE_BATCH_SIZE;
 
 
-        LOGGER.info("Generating {} new keys for the pool...3", GENERATE_BATCH_SIZE);
-
         for (int i = 0; i < GENERATE_BATCH_SIZE; i++) {
-
-            LOGGER.info("Generating {} new keys for the pool...", GENERATE_BATCH_SIZE);
             // todo : improver to base62 encoding
             // it best from math random ans fast
             // todo : add counter to generate sequential keys and avoid duplicates
             String newKey = shortCodeGenerator.generateShortCode();
             newKeys.add(newKey);
-
-            LOGGER.info("Generating {} new keys for the pool...2", GENERATE_BATCH_SIZE);
         }
 
 

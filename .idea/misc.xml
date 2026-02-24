@@ -7,6 +7,9 @@
         <option value="$PROJECT_DIR$/news-fetcher-service/pom.xml" />
         <option value="$PROJECT_DIR$/news-persistence-service/pom.xml" />
         <option value="$PROJECT_DIR$/news-url-shortener/pom.xml" />
+        <option value="$PROJECT_DIR$/api-gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/config-server/pom.xml" />
+        <option value="$PROJECT_DIR$/service-registry/pom.xml" />
       </list>
     </option>
     <option name="workspaceImportForciblyTurnedOn" value="true" />

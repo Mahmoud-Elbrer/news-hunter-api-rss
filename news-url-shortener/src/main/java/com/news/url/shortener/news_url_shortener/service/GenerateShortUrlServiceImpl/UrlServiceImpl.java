@@ -1,23 +1,26 @@
 package com.news.url.shortener.news_url_shortener.service.GenerateShortUrlServiceImpl;
 
 import com.news.url.shortener.news_url_shortener.entity.UrlMapping;
+import com.news.url.shortener.news_url_shortener.exception.ShortCodeNotFoundException;
 import com.news.url.shortener.news_url_shortener.repository.UrlRepository;
 import com.news.url.shortener.news_url_shortener.service.UrlService;
 import com.news.url.shortener.news_url_shortener.service.CacheService;
 import com.news.url.shortener.news_url_shortener.utils.ShortCodeGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 
 @Service
+@Slf4j
 public class UrlServiceImpl implements UrlService {
 
     private final UrlRepository repository;
 
     private final CacheService cacheService;
 
-    private ShortCodeGenerator shortCodeGenerator ;
+    private ShortCodeGenerator shortCodeGenerator;
 
     public UrlServiceImpl(UrlRepository repository, CacheService cacheService, ShortCodeGenerator shortCodeGenerator) {
         this.repository = repository;
@@ -32,8 +35,10 @@ public class UrlServiceImpl implements UrlService {
         Optional<UrlMapping> existing = repository.findByLongUrl(longUrl);
         if (existing.isPresent()) return existing.get();
 
+        // generate short code
         String shortCode = shortCodeGenerator.generateShortCode();
 
+        // create mapping
         UrlMapping mapping = new UrlMapping();
         mapping.setShortCode(shortCode);
         mapping.setLongUrl(longUrl);
@@ -53,12 +58,17 @@ public class UrlServiceImpl implements UrlService {
 
         if (longUrl != null) {
             // increment Click to cache
-           // cacheService.incrementClick(code);
+            // cacheService.incrementClick(code);
+            log.error("url not found");
             return longUrl;
         }
 
         // check from db
         UrlMapping mapping = repository.findByShortCode(code);
+
+        if (mapping == null) {
+            throw new ShortCodeNotFoundException(code);
+        }
 
         // save it cache
         cacheService.save(mapping);
@@ -70,4 +80,3 @@ public class UrlServiceImpl implements UrlService {
         return mapping.getLongUrl();
     }
 }
-

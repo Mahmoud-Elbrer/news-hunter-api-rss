@@ -5,6 +5,7 @@ import com.newshunter.news_fetcher_service.entity.RssSource;
 import com.newshunter.news_fetcher_service.event.NewsProducer;
 import com.newshunter.news_fetcher_service.utiltis.Constraint;
 import com.newshunter.news_fetcher_service.utiltis.ExtractImageUrl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.rometools.rome.io.XmlReader;
@@ -19,6 +20,7 @@ import com.rometools.rome.feed.synd.*;
 import com.rometools.rome.io.*;
 
 @Service
+@Slf4j
 public class NewsFetcherService {
 
     private final NewsCacheService newsCacheService;
@@ -31,11 +33,15 @@ public class NewsFetcherService {
     }
 
 
+    // todo : add retry mechanism for fetching feedUrl after some time if it fails
+    // todo : add circuit breaker mechanism for feedUrl that fails repeatedly to avoid overwhelming the news fetcher service and the news sites
+    // todo : add monitoring and alerting for feedUrl that fails repeatedly to notify the team about potential issues with the news sites or the news fetcher service
+    // fetch news items from the given RSS feed URL and return a list of news items
     public List<News> fetchRssItems(RssSource rssSource) {
 
-        //  System.out.println("DONE GET : " + feedUrl + " Every : " +  minutes);
-        System.out.println("\u001B[32m" + "Fetching : "  + rssSource.getUrl() +" ttl:"+ rssSource.getTtlHOURS() + " Hour for every " + rssSource.getFetchIntervalMinutes() + " minutes" + "\u001B[0m");
+        //System.out.println("\u001B[32m" + "Fetching : "  + rssSource.getUrl() +" ttl:"+ rssSource.getTtlHOURS() + " Hour for every " + rssSource.getFetchIntervalMinutes() + " minutes" + "\u001B[0m");
 
+        log.info("Fetching RSS feed from URL: {}, TTL: {} hours, Fetch Interval: {} minutes", rssSource.getUrl(), rssSource.getTtlHOURS(), rssSource.getFetchIntervalMinutes());
 
         List<News> items = new ArrayList<>();
 
@@ -43,7 +49,9 @@ public class NewsFetcherService {
 //        ObjectMapper objectMapper = new ObjectMapper();
 
         try {
+
             URL url = new URL(rssSource.getUrl());
+            // connect to the URL with a timeout and user-agent to avoid 403 errors from news sites
             URLConnection connection = url.openConnection();
 
             // It is very important to avoid 403 news sites
@@ -52,13 +60,18 @@ public class NewsFetcherService {
             connection.setConnectTimeout(10_000);
             connection.setReadTimeout(10_000);
 
-            try (InputStream inputStream = connection.getInputStream();
-                 XmlReader reader = new XmlReader(inputStream)) {
+            // stream the feed data and parse it using Rome's SyndFeedInput
+            try (InputStream inputStream = connection.getInputStream(); XmlReader reader = new XmlReader(inputStream)) {
+
+                log.info("Successfully connected to URL: {}", rssSource.getUrl());
 
                 SyndFeedInput input = new SyndFeedInput();
                 SyndFeed feed = input.build(reader);
 
+                // process each entry in the feed and create a News item for each entry, then check for duplicates and save to cache and send to Kafka
                 for (SyndEntry entry : feed.getEntries()) {
+
+                    log.info("Processing entry: {} from feed: {}", entry.getTitle(), feed.getTitle());
 
                     News item = new News();
                     item.setGuid(entry.getUri() != null ? entry.getUri() : entry.getLink());
@@ -74,15 +87,18 @@ public class NewsFetcherService {
 
                     // Deduplication Check
                     if (newsCacheService.isDuplicate(item)) {
+                        log.info("Duplicate news found, skipping: {}", item.getTitle());
                         continue;
                     }
 
                     // New News to Cache
                     newsCacheService.save(item, rssSource.getTtlHOURS());
+                    log.info("Saved news to cache: {}", item.getTitle());
 
 
                     // Send to Kafka
                     newsProducer.sendMessage(item);
+                    log.info("Sent news to Kafka: {}", item.getTitle());
 
                     items.add(item);
                 }
@@ -91,9 +107,11 @@ public class NewsFetcherService {
         } catch (Exception e) {
             // todo : log error
             // todo : retry fetch feedUrl after some time
+            log.error("Error fetching RSS feed from URL: {}. Error: {}", rssSource.getUrl(), e.getMessage());
             throw new RuntimeException(e); // this url : feedUrl filer
         }
 
+        log.info("Finished fetching RSS feed from URL: {}, total new items fetched: {}", rssSource.getUrl(), items.size());
         return items;
     }
 

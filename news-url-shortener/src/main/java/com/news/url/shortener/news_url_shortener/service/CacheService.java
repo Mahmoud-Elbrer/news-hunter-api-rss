@@ -26,6 +26,7 @@ public class CacheService {
     }
 
     public void save(UrlMapping urlMapping) {
+
         String key = buildKey(urlMapping.getShortCode());
 
         redisTemplate.opsForHash().put(key, "id", urlMapping.getId());

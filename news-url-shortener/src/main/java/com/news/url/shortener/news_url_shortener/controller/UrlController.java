@@ -1,5 +1,6 @@
 package com.news.url.shortener.news_url_shortener.controller;
 
+import com.news.url.shortener.news_url_shortener.dto.RedirectUrlResponse;
 import com.news.url.shortener.news_url_shortener.dto.UrlRequestDto;
 import com.news.url.shortener.news_url_shortener.entity.UrlMapping;
 import com.news.url.shortener.news_url_shortener.service.UrlService;
@@ -19,18 +20,18 @@ public class UrlController {
     }
 
     @PostMapping("/shorten")
-    public ResponseEntity<UrlMapping>  shorten(@Valid @RequestBody UrlRequestDto urlRequestDto) {
+    public ResponseEntity<UrlMapping> shorten(@Valid @RequestBody UrlRequestDto urlRequestDto) {
         return new ResponseEntity<>(urlService.createShortUrl(urlRequestDto.getLongUrl()), HttpStatus.CREATED);
     }
 
     @GetMapping("/{code}")
-    public String redirect(@Valid @PathVariable String code) {
-        System.out.println("Hello short");
-        return  urlService.redirect(code) ;
+    public ResponseEntity<RedirectUrlResponse> redirect(@Valid @PathVariable String code) {
+        String longUrl = urlService.redirect(code);
+
+        RedirectUrlResponse response = new RedirectUrlResponse(true, longUrl, code);
+
+        return ResponseEntity.ok(response);
     }
-
-
-
 
 
 }

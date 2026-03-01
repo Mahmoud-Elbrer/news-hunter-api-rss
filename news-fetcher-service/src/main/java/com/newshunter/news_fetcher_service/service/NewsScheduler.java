@@ -4,6 +4,7 @@ import com.newshunter.news_fetcher_service.config.RssSourcesUrls;
 import com.newshunter.news_fetcher_service.entity.News;
 import com.newshunter.news_fetcher_service.entity.RssSource;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Component
+@Slf4j
 public class NewsScheduler {
     private final ExecutorService executorService;
     private final NewsFetcherService newsFetcherService;
@@ -34,21 +36,23 @@ public class NewsScheduler {
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::schedule, 0, 60, TimeUnit.SECONDS);
     }
 
+    // This method is called every minute by the scheduler thread to check which RSS feeds
     private void schedule() {
 
 
         for (RssSource url : RssSourcesUrls.RSS_URLS) {
 
-            ///  System.out.println("i am running this : " + url.getUrl() + " -  every : " + url.getFetchIntervalMinutes());
+            log.info("Scheduling fetch for URL: {}, Fetch Interval: {} minutes", url.getUrl(), url.getFetchIntervalMinutes());
 
             // setup 1  Dynamic Scheduling
             if (!url.isReadyToFetch()) {
+                log.info("Not time to fetch yet for URL: {}, next fetch in {} seconds", url.getUrl(), url.getFetchIntervalMinutes());
                 continue;
             }
 
             // setup 2  Rate Limiting
             if (!rateLimiterService.isAllowed(url)) {
-                System.out.println("\u001B[0m" + "Rate limit reached for: " + url.getUrl() + "\u001B[0m");
+                log.info("Rate limit reached for URL: {}, skipping fetch", url.getUrl());
                 continue;
             }
 
@@ -60,9 +64,11 @@ public class NewsScheduler {
                     // todo : send to cashing
 
                     url.markFetched();
+
+                    log.info("Successfully fetched {} news items from URL: {}", newsItems.size(), url.getUrl());
                 } catch (Exception e) {
                     url.markFailed();
-                    System.err.println("Failed to fetch: " + url.getUrl());
+                    log.error("Error fetching URL: {}, error: {}", url.getUrl(), e.getMessage());
                 }
             });
         }
